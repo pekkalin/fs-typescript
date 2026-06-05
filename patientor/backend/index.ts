@@ -1,10 +1,13 @@
+
 import express from 'express';
 import cors from 'cors';
-import { v1 as uuid } from 'uuid'
+import { v1 as uuid } from 'uuid';
+
 import type { Diagnose, Patient, NewPatient } from './types.ts';
+import { NewPatientSchema } from './types.ts';
+
 import diagnoses from './data/diagnoses.ts';
 import patients from './data/patients.ts';
-import { toNewPatientEntry } from './utils.ts';
 
 const app = express();
 app.use(cors());
@@ -20,7 +23,7 @@ app.get('/api/ping', (_req, res) => {
 });
 
 app.get('/api/diagnoses', (_req, res) => {
-   res.json(diagnoses as Diagnose[]);
+  res.json(diagnoses as Diagnose[]);
 });
 
 app.get('/api/patients', (_req, res) => {
@@ -29,26 +32,26 @@ app.get('/api/patients', (_req, res) => {
 });
 
 app.post('/api/patients', (req, res) => {
-  try {
-    const newPatientEntry: NewPatient = toNewPatientEntry(req.body);
+  const result = NewPatientSchema.safeParse(req.body);
 
-    const newPatient: Patient = {
-      id: uuid(),
-      ...newPatientEntry,
-    };
-
-    patients.push(newPatient);
-
-    res.json(newPatient);
-  } catch (error: unknown) {
-    let errorMessage = 'Something went wrong.';
-
-    if (error instanceof Error) {
-      errorMessage += ` Error: ${error.message}`;
-    }
-
-    res.status(400).send(errorMessage);
+  if (!result.success) {
+    res.status(400).json({
+      error: 'Invalid patient data',
+      issues: result.error.issues,
+    });
+    return;
   }
+
+  const newPatientEntry: NewPatient = result.data;
+
+  const newPatient: Patient = {
+    id: uuid(),
+    ...newPatientEntry,
+  };
+
+  patients.push(newPatient);
+
+  res.json(newPatient);
 });
 
 app.listen(PORT, () => {
