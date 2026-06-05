@@ -23,11 +23,11 @@ app.get('/api/ping', (_req, res) => {
 });
 
 app.get('/api/diagnoses', (_req, res) => {
-  res.json(diagnoses as Diagnose[]);
+  res.json(diagnoses);
 });
 
 app.get('/api/patients', (_req, res) => {
-  const patientsWithoutSSN: PatientWithoutSSN[] = patients.map(({ ssn, ...rest }) => rest);
+  const patientsWithoutSSN: PatientWithoutSSN[] = patients.map(({ ssn: _ssn, ...rest }) => rest);
   res.json(patientsWithoutSSN);
 });
 
