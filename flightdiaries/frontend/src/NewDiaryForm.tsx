@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import axios from 'axios';
 import type { DiaryEntry, NewDiaryEntry, Weather, Visibility } from './types';
 import { create } from './diaryService';
 
@@ -25,8 +26,18 @@ const NewDiaryForm = ({ onEntryAdded }: Props) => {
       setComment('');
       setError(null);
     } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
+      if (axios.isAxiosError(err)) {
+        const data = err.response?.data;
+        if (typeof data === 'string') {
+          setError(data);
+        } else if (data?.error) {
+          const messages = Array.isArray(data.error)
+            ? data.error.map((i: { message: string }) => i.message).join(', ')
+            : String(data.error);
+          setError(messages);
+        } else {
+          setError(err.message);
+        }
       }
     }
   };
