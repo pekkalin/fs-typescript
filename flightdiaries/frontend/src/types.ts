@@ -7,3 +7,10 @@ export interface DiaryEntry {
   weather: Weather;
   visibility: Visibility;
 }
+
+export interface NewDiaryEntry {
+  date: string;
+  weather: Weather;
+  visibility: Visibility;
+  comment: string;
+}

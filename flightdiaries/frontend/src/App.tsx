@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { DiaryEntry } from './types';
 import { getAll } from './diaryService';
+import NewDiaryForm from './NewDiaryForm';
 
 const App = () => {
   const [diaries, setDiaries] = useState<DiaryEntry[]>([]);
@@ -11,7 +12,8 @@ const App = () => {
 
   return (
     <div>
-      <h2>Flight Diaries</h2>
+      <NewDiaryForm onEntryAdded={entry => setDiaries(diaries.concat(entry))} />
+      <h2>Diary entries</h2>
       {diaries.map(diary => (
         <div key={diary.id}>
           <strong>{diary.date}</strong>
