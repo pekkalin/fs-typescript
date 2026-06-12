@@ -4,7 +4,7 @@ import cors from 'cors';
 import { v1 as uuid } from 'uuid';
 
 import type { Patient, NonSensitivePatient } from './types.ts';
-import { NewPatientSchema } from './types.ts';
+import { NewPatientSchema, NewEntrySchema } from './types.ts';
 
 import diagnoses from './data/diagnoses.ts';
 import patients from './data/patients.ts';
@@ -60,6 +60,24 @@ app.post('/api/patients', (req, res) => {
   patients.push(newPatient);
 
   res.json(newPatient);
+});
+
+app.post('/api/patients/:id/entries', (req, res) => {
+  const patient = patients.find(p => p.id === req.params.id);
+  if (!patient) {
+    res.status(404).json({ error: 'Patient not found' });
+    return;
+  }
+
+  const result = NewEntrySchema.safeParse(req.body);
+  if (!result.success) {
+    res.status(400).json({ error: result.error.issues });
+    return;
+  }
+
+  const newEntry = { id: uuid(), ...result.data };
+  patient.entries.push(newEntry);
+  res.status(201).json(newEntry);
 });
 
 app.listen(PORT, () => {
