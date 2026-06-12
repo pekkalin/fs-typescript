@@ -3,7 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import { v1 as uuid } from 'uuid';
 
-import type { Diagnose, Patient, NewPatient } from './types.ts';
+import type { Patient, NonSensitivePatient } from './types.ts';
 import { NewPatientSchema } from './types.ts';
 
 import diagnoses from './data/diagnoses.ts';
@@ -15,8 +15,6 @@ app.use(express.json());
 
 const PORT = 3001;
 
-type PatientWithoutSSN = Omit<Patient, 'ssn'>;
-
 app.get('/api/ping', (_req, res) => {
   console.log('someone pinged here');
   res.send('pong');
@@ -27,8 +25,19 @@ app.get('/api/diagnoses', (_req, res) => {
 });
 
 app.get('/api/patients', (_req, res) => {
-  const patientsWithoutSSN: PatientWithoutSSN[] = patients.map(({ ssn: _ssn, ...rest }) => rest);
-  res.json(patientsWithoutSSN);
+  const nonSensitivePatients: NonSensitivePatient[] = patients.map(
+    ({ ssn: _ssn, entries: _entries, ...rest }) => rest
+  );
+  res.json(nonSensitivePatients);
+});
+
+app.get('/api/patients/:id', (req, res) => {
+  const patient = patients.find(p => p.id === req.params.id);
+  if (patient) {
+    res.json(patient);
+  } else {
+    res.status(404).json({ error: 'Patient not found' });
+  }
 });
 
 app.post('/api/patients', (req, res) => {
@@ -42,11 +51,10 @@ app.post('/api/patients', (req, res) => {
     return;
   }
 
-  const newPatientEntry: NewPatient = result.data;
-
   const newPatient: Patient = {
     id: uuid(),
-    ...newPatientEntry,
+    ...result.data,
+    entries: [],
   };
 
   patients.push(newPatient);
