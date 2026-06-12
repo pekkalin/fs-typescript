@@ -5,8 +5,9 @@ import MaleIcon from "@mui/icons-material/Male";
 import FemaleIcon from "@mui/icons-material/Female";
 import TransgenderIcon from "@mui/icons-material/Transgender";
 
-import { Patient, Gender, Entry, Diagnosis } from "../../types";
+import { Patient, Gender, Diagnosis } from "../../types";
 import patientService from "../../services/patients";
+import EntryDetails from "./EntryDetails";
 
 interface Props {
   diagnoses: Diagnosis[];
@@ -21,27 +22,6 @@ const GenderIcon = ({ gender }: { gender: Gender }) => {
     default:
       return <TransgenderIcon />;
   }
-};
-
-const EntryDetails = ({ entry, diagnoses }: { entry: Entry; diagnoses: Diagnosis[] }) => {
-  const diagnosisMap = Object.fromEntries(diagnoses.map(d => [d.code, d.name]));
-
-  return (
-    <Box sx={{ mb: 2 }}>
-      <Typography>
-        {entry.date} <em>{entry.description}</em>
-      </Typography>
-      {entry.diagnosisCodes && (
-        <ul>
-          {entry.diagnosisCodes.map(code => (
-            <li key={code}>
-              {code} {diagnosisMap[code]}
-            </li>
-          ))}
-        </ul>
-      )}
-    </Box>
-  );
 };
 
 const PatientPage = ({ diagnoses }: Props) => {
