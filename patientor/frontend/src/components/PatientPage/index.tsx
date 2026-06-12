@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Typography, Box } from "@mui/material";
+import { Typography, Box, Button } from "@mui/material";
 import MaleIcon from "@mui/icons-material/Male";
 import FemaleIcon from "@mui/icons-material/Female";
 import TransgenderIcon from "@mui/icons-material/Transgender";
 
-import { Patient, Gender, Diagnosis } from "../../types";
+import { Patient, Gender, Diagnosis, Entry } from "../../types";
 import patientService from "../../services/patients";
 import EntryDetails from "./EntryDetails";
+import AddEntryForm from "./AddEntryForm";
 
 interface Props {
   diagnoses: Diagnosis[];
@@ -27,6 +28,7 @@ const GenderIcon = ({ gender }: { gender: Gender }) => {
 const PatientPage = ({ diagnoses }: Props) => {
   const { id } = useParams<{ id: string }>();
   const [patient, setPatient] = useState<Patient | null>(null);
+  const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -34,6 +36,11 @@ const PatientPage = ({ diagnoses }: Props) => {
   }, [id]);
 
   if (!patient) return <div>Loading...</div>;
+
+  const handleEntryAdded = (entry: Entry) => {
+    setPatient({ ...patient, entries: patient.entries.concat(entry) });
+    setShowForm(false);
+  };
 
   return (
     <Box>
@@ -47,6 +54,16 @@ const PatientPage = ({ diagnoses }: Props) => {
       {patient.entries.map(entry => (
         <EntryDetails key={entry.id} entry={entry} diagnoses={diagnoses} />
       ))}
+      {showForm
+        ? <AddEntryForm
+            patientId={patient.id}
+            onEntryAdded={handleEntryAdded}
+            onCancel={() => setShowForm(false)}
+          />
+        : <Button variant="contained" sx={{ mt: 2 }} onClick={() => setShowForm(true)}>
+            Add New Entry
+          </Button>
+      }
     </Box>
   );
 };
