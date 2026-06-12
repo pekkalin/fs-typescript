@@ -49,7 +49,7 @@ const AddEntryForm = ({ patientId, diagnoses, onEntryAdded, onCancel }: Props) =
   const [selectedCodes, setSelectedCodes] = useState<string[]>([]);
 
   // HealthCheck
-  const [healthCheckRating, setHealthCheckRating] = useState<HealthCheckRating | "">("");
+  const [healthCheckRating, setHealthCheckRating] = useState<HealthCheckRating>(HealthCheckRatingEnum.Healthy);
 
   // OccupationalHealthcare
   const [employerName, setEmployerName] = useState("");
@@ -81,7 +81,7 @@ const AddEntryForm = ({ patientId, diagnoses, onEntryAdded, onCancel }: Props) =
         return {
           ...base,
           type: "HealthCheck" as const,
-          healthCheckRating: healthCheckRating as HealthCheckRating,
+          healthCheckRating,
         };
       case "OccupationalHealthcare": {
         const sickLeave =
@@ -175,11 +175,9 @@ const AddEntryForm = ({ patientId, diagnoses, onEntryAdded, onCancel }: Props) =
         <FormControl fullWidth margin="dense">
           <InputLabel>Health Check Rating</InputLabel>
           <Select
-            value={healthCheckRating === "" ? "" : String(healthCheckRating)}
+            value={String(healthCheckRating)}
             label="Health Check Rating"
-            onChange={e =>
-              setHealthCheckRating(e.target.value === "" ? "" : Number(e.target.value) as HealthCheckRating)
-            }
+            onChange={e => setHealthCheckRating(Number(e.target.value) as HealthCheckRating)}
           >
             {(Object.entries(ratingLabels) as [string, string][]).map(([val, label]) => (
               <MenuItem key={val} value={val}>{val} — {label}</MenuItem>
