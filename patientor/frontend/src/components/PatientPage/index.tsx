@@ -5,7 +5,7 @@ import MaleIcon from "@mui/icons-material/Male";
 import FemaleIcon from "@mui/icons-material/Female";
 import TransgenderIcon from "@mui/icons-material/Transgender";
 
-import { Patient, Gender } from "../../types";
+import { Patient, Gender, Entry } from "../../types";
 import patientService from "../../services/patients";
 
 const GenderIcon = ({ gender }: { gender: Gender }) => {
@@ -18,6 +18,21 @@ const GenderIcon = ({ gender }: { gender: Gender }) => {
       return <TransgenderIcon />;
   }
 };
+
+const EntryDetails = ({ entry }: { entry: Entry }) => (
+  <Box sx={{ mb: 2 }}>
+    <Typography>
+      {entry.date} <em>{entry.description}</em>
+    </Typography>
+    {entry.diagnosisCodes && (
+      <ul>
+        {entry.diagnosisCodes.map(code => (
+          <li key={code}>{code}</li>
+        ))}
+      </ul>
+    )}
+  </Box>
+);
 
 const PatientPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -38,6 +53,10 @@ const PatientPage = () => {
       <Typography>ssn: {patient.ssn}</Typography>
       <Typography>occupation: {patient.occupation}</Typography>
       <Typography>date of birth: {patient.dateOfBirth}</Typography>
+      <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>entries</Typography>
+      {patient.entries.map(entry => (
+        <EntryDetails key={entry.id} entry={entry} />
+      ))}
     </Box>
   );
 };
